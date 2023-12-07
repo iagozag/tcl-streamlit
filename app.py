@@ -1,3 +1,5 @@
+%%writefile app.py
+
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -85,12 +87,12 @@ def main():
             params['a'] = st.number_input('Enter the parameter a (0 <= a <= b):', min_value=0, value=0)
             params['b'] = st.number_input('Enter the parameter b (b >= a):', min_value=0, value=5)
 
-            if params['b'] < params['a']:
-                st.error('The value of b must be greater than or equal to a.')
-                return;
-
         params['qnt'] = st.number_input('Enter the number of samples (n >= 1):', min_value=1, value=100)
         params['len'] = st.number_input('Enter the size of the samples (n >= 1):', min_value=1, value=30)
+
+        if block_op == "Uniform" and params['b'] < params['a']:
+            st.error('The value of b must be greater than or equal to a.')
+            return;
 
     if block_op == 'Binomial':
         st.markdown("""
