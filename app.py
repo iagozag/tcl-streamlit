@@ -120,8 +120,8 @@ def main():
     df = generate_samples(block_op, params)
     plot_graphics(block_op, df, params)
 
-    st.markdown("""<h4>Alunos:</h4>
-        <h5>Caroline Campos Carvalho e Iago Zagnoli Albergaria</h4>
+    st.markdown("""<h4>Students:</h4>
+        <h5>Caroline Campos Carvalho and Iago Zagnoli Albergaria</h4>
     """, unsafe_allow_html=True)
 
 if __name__ == '__main__':
