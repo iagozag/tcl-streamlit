@@ -22,35 +22,47 @@ def generate_samples(dist, params):
 
     return df
 
+def plot_normal(ax, sample_means, actual_mean, actual_standard_deviation):
+    x = np.linspace(min(sample_means), max(sample_means), 100)
+    rv = norm(loc=actual_mean, scale=actual_standard_deviation)
+    y_normal = rv.pdf(x)
+
+    ax2 = ax.twinx()
+    ax2.plot(x, y_normal, 'green', linewidth=2, label='Normal Distribution')
+    ax2.set_ylabel('Normal Distribution', color='k')
+    ax2.tick_params(axis='y', labelcolor='k')
+
 def plot_graphics(distribution, df, params):
-    plt.figure(figsize=(12, 8))
+    fig, axes = plt.subplots(1, 2, figsize=(12, 8))
 
     # Subplot 1: Distribution Histogram
-    plt.subplot(1, 2, 1)
-
-    sns.histplot(df.values.flatten(), kde=False, bins=15, color='darkblue', edgecolor='black')
-
-    plt.title(f'{distribution} Sample Distribution')
-    plt.xlabel('Values')
-    plt.ylabel('Sample Frequency')
+    axes[0].hist(df.values.flatten(), bins=15, color='darkblue', edgecolor='black')
+    axes[0].set_title(f'{distribution} Sample Distribution')
+    axes[0].set_xlabel('Values')
+    axes[0].set_ylabel('Sample Frequency')
 
     # Subplot 2: Sample means distribution
-    plt.subplot(1, 2, 2)
     df_sample_means = pd.DataFrame(df.mean(), columns=['Sample means'])
+    axes[1].hist(df_sample_means['Sample means'], bins=15, color='darkred', edgecolor='black')
 
-    sns.histplot(df_sample_means['Sample means'], kde=False, bins=15, color='darkred', edgecolor='black')
-
-    mean_sample_means = df_sample_means['Sample means'].mean()
+    sample_means = df_sample_means['Sample means'].mean()
     se_sample_means = df_sample_means['Sample means'].std() / np.sqrt(params['len'])
 
     x_sample = np.linspace(df_sample_means['Sample means'].min(), df_sample_means['Sample means'].max(), 100)
 
-    plt.title(f'Distribution of Sample Means ({distribution})')
-    plt.xlabel('Sample Means')
-    plt.ylabel('Frequency of Sample Sets')
-    plt.legend()
+    axes[1].set_title(f'Distribution of Sample Means ({distribution})')
+    axes[1].set_xlabel('Sample Means')
+    axes[1].set_ylabel('Frequency of Sample Sets')
+    axes[1].legend()
 
-    st.pyplot(plt.gcf())
+    # Plotar distribuição normal sobreposta
+    plot_normal(axes[1], df_sample_means['Sample means'], sample_means, se_sample_means)
+
+    # Adjust layout
+    plt.subplots_adjust(wspace=0.3)
+
+    # Display the plot in Streamlit
+    st.pyplot(fig)
 
 
 def main():
@@ -81,6 +93,10 @@ def main():
     plot_graphics(block_op, df, params)
 
     plt.subplots_adjust(wspace=0.3)
+
+    st.markdown("""<br><h4>Alunos:</h4>
+        <h5>Caroline Campos Carvalho e Iago Zagnoli Albergaria</h4>
+    """, unsafe_allow_html=True)
 
 if __name__ == '__main__':
     main()
