@@ -1,3 +1,5 @@
+%%writefile app.py
+
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -13,12 +15,15 @@ def get_sample(dist, params):
     elif dist == 'Uniform':
         return np.random.uniform(low=params['a'], high=params['b'], size=params['len'])
 
+
 def generate_samples(dist, params):
-    df = pd.DataFrame()
+    samples = []
+
     for i in range(1, params['qnt'] + 1):
         sample = get_sample(dist, params)
-        col = f'sample {i}'
-        df[col] = sample
+        samples.append(pd.Series(sample, name=f'sample {i}'))
+
+    df = pd.concat(samples, axis=1)
 
     return df
 
@@ -53,15 +58,14 @@ def plot_graphics(distribution, df, params):
     axes[1].set_title(f'Distribution of Sample Means ({distribution})')
     axes[1].set_xlabel('Sample Means')
     axes[1].set_ylabel('Frequency of Sample Sets')
-    axes[1].legend()
 
-    # Plotar distribuição normal sobreposta
+    # Plotar distribuição normal sobreposta com legenda
     plot_normal(axes[1], df_sample_means['Sample means'], sample_means, se_sample_means)
 
-    # Adjust layout
+    # Ajustar layout
     plt.subplots_adjust(wspace=0.3)
 
-    # Display the plot in Streamlit
+    # Exibir o gráfico no Streamlit
     st.pyplot(fig)
 
 
@@ -86,15 +90,38 @@ def main():
             if params['b'] < params['a']:
                 st.error('The value of b must be greater than or equal to a.')
 
-        params['qnt'] = st.number_input('Enter the number of samples:', min_value=5, value=100)
-        params['len'] = st.number_input('Enter the size of the samples:', min_value=1, value=30)
+        params['qnt'] = st.number_input('Enter the number of samples (n >= 1):', min_value=1, value=100)
+        params['len'] = st.number_input('Enter the size of the samples (n >= 1):', min_value=1, value=30)
+
+    if block_op == 'Binomial':
+        st.markdown("""
+        <h3>Binomial:</h3>
+        <ul>
+            <li>The distribution of sample means approaches a normal distribution, as expected by the Central Limit Theorem (CLT).</li>
+            <li>As n increases, the convergence to the normal distribution becomes more evident.</li>
+        </ul><br>
+        """, unsafe_allow_html=True)
+    elif block_op == 'Exponential':
+        st.markdown("""
+        <h3>Exponential:</h3>
+        <ul>
+            <li>Similar to the binomial distribution, the distribution of sample means converges to a normal distribution as n increases.</li>
+            <li>The shape of the exponential distribution affects the rate of convergence.</li>
+        </ul><br>
+        """, unsafe_allow_html=True)
+    elif block_op == 'Uniform':
+        st.markdown("""
+        <h3>Uniform:</h3>
+        <ul>
+            <li>The uniform distribution, being less affected by long tails, may converge to a normal distribution more quickly.</li>
+            <li>The convergence of sample means to a normal distribution is faster as the sample size increases.</li>
+        </ul><br>
+        """, unsafe_allow_html=True)
 
     df = generate_samples(block_op, params)
     plot_graphics(block_op, df, params)
 
-    plt.subplots_adjust(wspace=0.3)
-
-    st.markdown("""<br><h4>Alunos:</h4>
+    st.markdown("""<h4>Alunos:</h4>
         <h5>Caroline Campos Carvalho e Iago Zagnoli Albergaria</h4>
     """, unsafe_allow_html=True)
 
